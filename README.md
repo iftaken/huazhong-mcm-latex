@@ -21,7 +21,11 @@ xinhe-thesis/
 ├── references.bib        # 参考文献数据库（必需）
 ├── main.pdf              # 编译后的PDF（用于预览模板效果）
 ├── .latexmkrc            # latexmk 编译配置
+├── init.sh               # 字体初始化脚本
 ├── README.md             # 本文件
+├── font/                 # 字体文件夹（存放中文字体）
+│   ├── simsun.ttc        # 宋体
+│   └── simkai.ttf        # 楷体
 ├── chapters/             # 章节文件夹
 │   ├── abstract.tex      # 中英文摘要
 │   ├── chapter1.tex      # 第一章：绪论
@@ -68,12 +72,21 @@ scoop install tectonic
 
 **中文字体：**
 - SimSun (宋体) - 正文
-- SimHei (黑体) - 标题
+- SimKai (楷体) - 强调文字
 
 **英文字体：**
 - Times New Roman - 英文正文
 - Arial - 英文无衬线
-- Courier New - 英文等宽
+
+字体文件应放在 `font/` 目录下。运行初始化脚本检查/准备字体：
+
+```bash
+# 检查字体状态
+./init.sh
+```
+
+**手动准备字体：**
+运行 `bash init.sh` 自动下载字体到 `font/` 目录
 
 ### 3. 编译文档
 
@@ -185,7 +198,7 @@ rm -f main.aux main.log main.out main.toc main.bbl main.blg
 
 1. **必须保留** `main.cls`、`main.tex`、`references.bib` 三个核心文件
 2. **图片统一存放**在 `Fig/` 目录下，便于管理
-3. 确保系统安装了所需的 Windows 中文字体
+3. 确保 `@font/` 目录包含所需的中文字体（运行 `bash init.sh` 自动下载）
 4. 使用 XeLaTeX 编译以支持中文
 5. 修改章节后需要多次编译以更新交叉引用
 6. 添加新参考文献后需要运行 `bibtex`

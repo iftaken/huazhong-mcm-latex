@@ -1,324 +1,553 @@
 % ============================================================
-% 心河大学学位论文 LaTeX 文档类模板
+% 华中杯数学建模竞赛 LaTeX 文档类模板
 % ============================================================
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{main}[2026/03/11 v1.0 University Thesis Template]
+% 基于 cumcmthesis 改造，适配 chapters/ 目录管理结构
+% ============================================================
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesClass{main}[2026/03/26 v1.0 华中杯数学建模竞赛模板]
 
-% ------------------------------------------------------------
-% 选项处理
-% ------------------------------------------------------------
-\DeclareOption{print}{\PassOptionsToClass{twoside}{ctexbook}}
-\DeclareOption{draft}{\PassOptionsToClass{draft}{ctexbook}}
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{ctexbook}}
-\ExecuteOptions{}
+%% ------------------------------------------------------------
+%% 选项处理
+%% ------------------------------------------------------------
+\newif\if@mcm@bwprint\@mcm@bwprintfalse
+\newif\if@mcm@preface\@mcm@prefacetrue
+
+\DeclareOption{colorprint}{\@mcm@bwprintfalse}
+\DeclareOption{bwprint}{\@mcm@bwprinttrue}
+\DeclareOption{withoutpreface}{\@mcm@prefacefalse}
+\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
+\ExecuteOptions{colorprint}
 \ProcessOptions\relax
 
-% ------------------------------------------------------------
-% 基础文档类 (ctexbook 提供中文支持)
-% ------------------------------------------------------------
-\LoadClass[UTF8,a4paper,12pt,openany]{ctexbook}
+%% ------------------------------------------------------------
+%% 加载基础文档类
+%% ------------------------------------------------------------
+\LoadClass[a4paper,12pt]{article}
 
-% ------------------------------------------------------------
-% 页面设置
-% ------------------------------------------------------------
-\RequirePackage{geometry}
-\geometry{
-    paperwidth=210mm,
-    paperheight=297mm,
-    left=2.5cm,
-    right=2.5cm,
-    top=2.5cm,
-    bottom=2.5cm,
-    headheight=15pt,
-    headsep=20pt,
-    footskip=30pt
-}
+%% ------------------------------------------------------------
+%% 基础宏包
+%% ------------------------------------------------------------
+\RequirePackage{ifxetex}
+\RequireXeTeX
+\ifxetex\else
+\ClassError{main}{必须使用 xelatex 编译}{}
+\fi
 
-% ------------------------------------------------------------
-% 基础宏包
-% ------------------------------------------------------------
+% 中文支持
+\RequirePackage{ctex}
 \RequirePackage{xeCJK}
-\RequirePackage{setspace}           % 行距设置
-\RequirePackage{fancyhdr}           % 页眉页脚
-\RequirePackage{titlesec}           % 标题格式
-\RequirePackage{tocloft}            % 目录格式
-\RequirePackage{graphicx}           % 图片支持
-\RequirePackage{amsmath,amssymb,amsfonts} % 数学公式
-\RequirePackage{booktabs}           % 表格
-\RequirePackage{longtable}          % 跨页表格
-\RequirePackage{multirow}           % 表格多行合并
-\RequirePackage{array}              % 表格增强
-\RequirePackage{float}              % 浮动体控制
-\RequirePackage{caption}            % 图表标题
-\RequirePackage{subcaption}         % 子图标题
-\RequirePackage{bicaption}           % 双语图表标题
-\RequirePackage{hyperref}           % 超链接
-\RequirePackage{enumitem}           % 列表环境
-\RequirePackage{xcolor}             % 颜色
-\RequirePackage{listings}           % 代码 listings
-\RequirePackage{algorithm}          % 算法环境
-\RequirePackage{algpseudocode}      % 算法伪代码
-\RequirePackage{dirtree}            % 目录树结构
 
-% ------------------------------------------------------------
-% 参考文献设置
-% ------------------------------------------------------------
-\RequirePackage[sort&compress,numbers,super]{natbib}
+% 页面布局
+\RequirePackage{geometry}
+\geometry{top=25mm,bottom=25mm,left=25mm,right=25mm}
 
-% ------------------------------------------------------------
-% 超链接设置
-% ------------------------------------------------------------
-\hypersetup{
-    colorlinks=true,
-    linkcolor=black,
-    citecolor=black,
-    urlcolor=blue,
-    bookmarksopen=true,
+% 数学宏包
+\RequirePackage{amsmath,amsfonts,amssymb,bm}
+
+% 图表
+\RequirePackage{graphicx,float}
+\RequirePackage{array,longtable,booktabs,tabularx,multirow,bigstrut,bigdelim}
+
+% 颜色
+\RequirePackage{xcolor}
+
+% 代码环境
+\RequirePackage{listings}
+
+% 链接
+\RequirePackage{url}
+
+% 子图与标题
+\RequirePackage{subcaption}
+\RequirePackage[titles]{tocloft}
+\renewcommand{\cftsecdotsep}{4.5}
+\setlength{\cftbeforesecskip}{7pt}
+\setlength{\cftbeforesubsecskip}{3pt}
+\renewcommand{\cftsecfont}{\bfseries\zihao{-4}\heiti}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftsecdotsep}}
+\renewcommand{\cftsecaftersnumb}{\hskip.4em}
+
+% 首行缩进
+\RequirePackage{indentfirst}
+
+% 图表标题
+\RequirePackage{caption}
+
+% 列表
+\RequirePackage{enumitem}
+
+% 下划线
+\RequirePackage{ulem}
+
+% 计算
+\RequirePackage{calc}
+
+% 附录
+\RequirePackage[titletoc,title]{appendix}
+
+% 工具
+\RequirePackage{etoolbox}
+\AtBeginEnvironment{thebibliography}{%
+    \phantomsection
+    \addcontentsline{toc}{section}{\refname}
+    }
+
+% 超链接（必须最后加载）
+\RequirePackage{hyperref}
+\RequirePackage{cleveref}
+
+%% ------------------------------------------------------------
+%% 超链接设置
+%% ------------------------------------------------------------
+\hypersetup{%
+    pdfstartview=FitH,
+    CJKbookmarks=true,
     bookmarksnumbered=true,
-    pdfborder={0 0 0}
+    bookmarksopen=true,
+    colorlinks,
+    pdfborder=001,
+    allcolors=black,
+    breaklinks=true
 }
 
-% ------------------------------------------------------------
-% 字体设置
-% ------------------------------------------------------------
-% 中文字体：宋体(正文)、黑体(标题)
-\setCJKmainfont{SimSun}[AutoFakeBold=true,AutoFakeSlant=true]     % 宋体 - 正文
-\setCJKsansfont{SimHei}[AutoFakeBold=true]                         % 黑体 - 标题
-\setCJKmonofont{SimSun}                                             % 宋体 - 等宽备选
-
-% 英文字体：Times New Roman
+%% ------------------------------------------------------------
+%% 字体设置
+%% ------------------------------------------------------------
 \setmainfont{Times New Roman}
 \setsansfont{Arial}
-\setmonofont{Courier New}
+\setCJKfamilyfont{kai}[AutoFakeBold,Path=./font/]{simkai.ttf}
+\newcommand*{\kai}{\CJKfamily{kai}}
+\setCJKfamilyfont{song}[AutoFakeBold,Path=./font/]{simsun.ttc}
+\newcommand*{\song}{\CJKfamily{song}}
 
-\setmainfont{Times New Roman}   % 英文正文
-\setsansfont{Arial}             % 英文无衬线
-\setmonofont{Courier New}       % 英文等宽
+%% ------------------------------------------------------------
+%% 行距设置
+%% ------------------------------------------------------------
+\renewcommand*{\baselinestretch}{1.38}
 
-% ------------------------------------------------------------
-% 字号设置 (pt)
-% ------------------------------------------------------------
-\newcommand{\chuhao}{\fontsize{42pt}{50.4pt}\selectfont}      % 初号
-\newcommand{\xiaochu}{\fontsize{36pt}{43.2pt}\selectfont}    % 小初
-\newcommand{\yihao}{\fontsize{26pt}{31.2pt}\selectfont}      % 一号
-\newcommand{\xiaoyi}{\fontsize{24pt}{28.8pt}\selectfont}     % 小一
-\newcommand{\erhao}{\fontsize{22pt}{26.4pt}\selectfont}      % 二号
-\newcommand{\xiaoer}{\fontsize{18pt}{21.6pt}\selectfont}     % 小二
-\newcommand{\sanhao}{\fontsize{16pt}{19.2pt}\selectfont}     % 三号
-\newcommand{\xiaosan}{\fontsize{15pt}{18pt}\selectfont}      % 小三
-\newcommand{\sihao}{\fontsize{14pt}{16.8pt}\selectfont}      % 四号
-\newcommand{\xiaosi}{\fontsize{12pt}{14.4pt}\selectfont}     % 小四
-\newcommand{\wuhao}{\fontsize{10.5pt}{12.6pt}\selectfont}    % 五号
-\newcommand{\xiaowu}{\fontsize{9pt}{10.8pt}\selectfont}      % 小五
+%% ------------------------------------------------------------
+%% 代码样式设置
+%% ------------------------------------------------------------
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
 
-% ------------------------------------------------------------
-% 行距设置
-% ------------------------------------------------------------
-\setstretch{1.5}    % 1.5倍行距
-
-% ------------------------------------------------------------
-% 章节标题格式设置
-% ------------------------------------------------------------
-\ctexset{
-    chapter = {
-        format = \centering\sffamily\xiaoer\bfseries,
-        name = {第,章},
-        number = \chinese{chapter},
-        beforeskip = 24pt,
-        afterskip = 18pt,
-        pagestyle = fancy
-    },
-    section = {
-        format = \sffamily\sanhao\bfseries,
-        beforeskip = 12pt,
-        afterskip = 6pt
-    },
-    subsection = {
-        format = \sffamily\sihao\bfseries,
-        beforeskip = 6pt,
-        afterskip = 6pt
-    },
-    subsubsection = {
-        format = \sffamily\xiaosi\bfseries,
-        beforeskip = 6pt,
-        afterskip = 6pt
-    }
-}
-
-% ------------------------------------------------------------
-% 目录格式设置
-% ------------------------------------------------------------
-\renewcommand{\cftchapfont}{\sffamily\xiaosi}
-\renewcommand{\cftsecfont}{\xiaosi}
-\renewcommand{\cftsubsecfont}{\xiaosi}
-\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
-\setlength{\cftbeforechapskip}{6pt}
-\setlength{\cftbeforesecskip}{3pt}
-\setlength{\cftbeforesubsecskip}{3pt}
-
-% ------------------------------------------------------------
-% 页眉页脚设置
-% ------------------------------------------------------------
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[C]{\xiaowu 心河大学学位论文}
-\fancyfoot[C]{\thepage}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0pt}
-
-% 章节首页页眉页脚
-\fancypagestyle{plain}{
-    \fancyhf{}
-    \fancyhead[C]{\xiaowu 心河大学学位论文}
-    \fancyfoot[C]{\thepage}
-    \renewcommand{\headrulewidth}{0.4pt}
-}
-
-% ------------------------------------------------------------
-% 图表标题格式
-% ------------------------------------------------------------
-\captionsetup{
-    font={small},
-    labelfont={bf},
-    labelsep=quad,
-    skip=10pt
-}
-\captionsetup[figure]{name={图}}
-\captionsetup[table]{name={表}}
-
-% ------------------------------------------------------------
-% 双语图表标题设置
-% ------------------------------------------------------------
-\DeclareCaptionOption{bi-first}[]{%
-    \def\figurename{图}%
-    \def\tablename{表}%
-}
-\DeclareCaptionOption{bi-second}[]{%
-    \def\figurename{Figure}%
-    \def\tablename{Table}%
-}
-\captionsetup[bi-first]{bi-first}
-\captionsetup[bi-second]{bi-second}
-
-% ------------------------------------------------------------
-% 图表编号格式: 章-序号
-% ------------------------------------------------------------
-\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
-\renewcommand{\thetable}{\thechapter-\arabic{table}}
-\renewcommand{\theequation}{\thechapter-\arabic{equation}}
-\makeatletter
-\@addtoreset{figure}{chapter}
-\@addtoreset{table}{chapter}
-\@addtoreset{equation}{chapter}
-\makeatother
-
-% ------------------------------------------------------------
-% 列表环境设置
-% ------------------------------------------------------------
-\setlist[enumerate]{
-    label=(\arabic*),
-    leftmargin=2em,
-    itemsep=0pt,
-    parsep=0pt
-}
-\setlist[itemize]{
-    leftmargin=2em,
-    itemsep=0pt,
-    parsep=0pt
-}
-
-% ------------------------------------------------------------
-% 代码环境设置
-% ------------------------------------------------------------
 \lstset{
-    basicstyle=\small\ttfamily,
-    keywordstyle=\color{blue}\bfseries,
-    commentstyle=\color{gray},
-    stringstyle=\color{red},
-    numbers=left,
-    numberstyle=\tiny,
-    numbersep=8pt,
-    frame=single,
-    breaklines=true,
-    showstringspaces=false,
-    tabsize=4,
-    captionpos=b
+  frame=tb,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  framerule=1pt,
+  rulecolor=\color{gray!35},
+  backgroundcolor=\color{gray!5},
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
 }
 
-% ------------------------------------------------------------
-% 数学定理环境
-% ------------------------------------------------------------
-\RequirePackage{amsthm}
-\theoremstyle{definition}
-\newtheorem{definition}{定义}[chapter]
-\newtheorem{theorem}{定理}[chapter]
-\newtheorem{lemma}{引理}[chapter]
-\newtheorem{corollary}{推论}[chapter]
-\newtheorem{proposition}{命题}[chapter]
-\newtheorem{example}{例}[chapter]
-\newtheorem{remark}{注}[chapter]
+%% ------------------------------------------------------------
+%% tcode环境（用于展示LaTeX代码）
+%% ------------------------------------------------------------
+\lstnewenvironment{tcode}
+  {
+    \lstset{basicstyle = \small\ttfamily,
+        language=TeX,
+        tabsize = 4,
+        frame = single,
+        escapechar = `,
+        breaklines = true,
+        breakatwhitespace = true,
+        frameround = tttt,
+    }
+  }
+  {}
 
-% ------------------------------------------------------------
-% 封面信息命令
-% ------------------------------------------------------------
-\newcommand{\university}[1]{\gdef\@university{#1}}
-\newcommand{\college}[1]{\gdef\@college{#1}}
-\newcommand{\major}[1]{\gdef\@major{#1}}
-\newcommand{\advisor}[1]{\gdef\@advisor{#1}}
-\newcommand{\studentid}[1]{\gdef\@studentid{#1}}
-\newcommand{\degree}[1]{\gdef\@degree{#1}}
-\newcommand{\submitdate}[1]{\gdef\@submitdate{#1}}
+%% ------------------------------------------------------------
+%% 数学定理环境
+%% ------------------------------------------------------------
+\newtheorem{definition}{定义}
+\newtheorem{theorem}{定理}
+\newtheorem{lemma}{引理}
+\newtheorem{corollary}{推论}
+\newtheorem{assumption}{假设}
+\newtheorem{conjecture}{猜想}
+\newtheorem{axiom}{公理}
+\newtheorem{principle}{定律}
+\newtheorem{problem}{问题}
+\newtheorem{example}{例}
+\newtheorem{proof}{证明}
+\newtheorem{solution}{解}
 
-\university{XX大学}
-\college{XX学院}
-\major{XX专业}
-\advisor{XXX教授}
-\studentid{20XXXXXXXX}
-\degree{硕士学位论文}
-\submitdate{2026年3月}
+%% ------------------------------------------------------------
+%% cleveref格式设置
+%% ------------------------------------------------------------
+\crefformat{figure}{#2图~#1#3}
+\crefrangeformat{figure}{图~(#3#1#4)\;\~{}\;(#5#2#6)}
+\crefmultiformat{figure}{图~(#2#1#3)}{和~(#2#1#3)}{，(#2#1#3)}{和~(#2#1#3)}
 
-% ------------------------------------------------------------
-% 封面生成命令
-% ------------------------------------------------------------
-\newcommand{\makecover}{%
-    \begin{titlepage}
-        \centering
-        \vspace*{1cm}
-        
-        % 学校名称
-        {\zihao{-2}\bfseries\CJKfamily{zhsong}\@university}
-        
-        \vspace{1.5cm}
-        
-        % 学位类型
-        {\zihao{2}\bfseries\CJKfamily{zhsong}\@degree}
-        
-        \vspace{3cm}
-        
-        % 论文题目
-        {\zihao{-2}\bfseries\CJKfamily{zhsong}\@title}
-        
-        \vspace{4cm}
-        
-        % 作者信息
-        {\zihao{4}
-        \begin{tabular}{rl}
-            \CJKfamily{zhsong}\textbf{学院名称：} & \CJKfamily{zhsong}\@college \\[0.8cm]
-            \CJKfamily{zhsong}\textbf{专业名称：} & \CJKfamily{zhsong}\@major \\[0.8cm]
-            \CJKfamily{zhsong}\textbf{作者姓名：} & \CJKfamily{zhsong}\@author \\[0.8cm]
-            \CJKfamily{zhsong}\textbf{学\qquad 号：} & \CJKfamily{zhsong}\@studentid \\[0.8cm]
-            \CJKfamily{zhsong}\textbf{指导教师：} & \CJKfamily{zhsong}\@advisor \\[0.8cm]
-        \end{tabular}
-        }
-        
-        \vfill
-        
-        % 提交日期
-        {\zihao{4}\bfseries\CJKfamily{zhsong}\@submitdate}
-        
-    \end{titlepage}
+\crefformat{table}{#2表#1#3}
+\crefrangeformat{table}{表(#3#1#4)\;\~{}\;(#5#2#6)}
+\crefmultiformat{table}{表~(#2#1#3)}{和~(#2#1#3)}{，(#2#1#3)}{和~(#2#1#3)}
+
+\crefformat{equation}{#2~(#1#3)}
+\crefrangeformat{equation}{~(#3#1#4)\;\~{}\;(#5#2#6)}
+\crefmultiformat{equation}{~(#2#1#3)}{ 和~(#2#1#3)}{，(#2#1#3)}{ 和~(#2#1#3)}
+
+%% ------------------------------------------------------------
+%% 浮动体设置
+%% ------------------------------------------------------------
+\renewcommand*{\textfraction}{0.05}
+\renewcommand*{\topfraction}{0.9}
+\renewcommand*{\bottomfraction}{0.8}
+\renewcommand*{\floatpagefraction}{0.85}
+
+\DeclareGraphicsExtensions{.pdf,.eps,.jpg,.png}
+\graphicspath{{figture/}{figure/}{pictures/}{picture/}{pic/}{pics/}{image/}{images/}}
+
+\DeclareCaptionFont{song}{\songti}
+\DeclareCaptionFont{minusfour}{\zihao{-4}}
+\captionsetup[figure]{%
+    format=hang,
+    labelsep=quad,
+    font={song,minusfour,bf},
+    position=bottom
+}
+\captionsetup[table]{%
+    format=hang,
+    labelsep=quad,
+    font={song,minusfour,bf},
+    position=top
 }
 
-% ============================================================
-% 文档类结束
-% ============================================================
+%% ------------------------------------------------------------
+%% 列表设置
+%% ------------------------------------------------------------
+\setlist{%
+    topsep=0.3em,
+    partopsep=0pt,
+    itemsep=0ex plus 0.1ex,
+    parsep=0pt,
+    leftmargin=1.5em,
+    rightmargin=0em,
+    labelsep=0.5em,
+    labelwidth=2em
+}
+
+%% ------------------------------------------------------------
+%% 段落设置
+%% ------------------------------------------------------------
+\setlength\parindent{2em}
+\renewcommand\normalsize{%
+    \@setfontsize\normalsize{12.05}{14.45}%
+    \abovedisplayskip 12\p@ \@plus3\p@ \@minus7\p@
+    \abovedisplayshortskip \z@ \@plus3\p@
+    \belowdisplayshortskip 6.5\p@ \@plus3.5\p@ \@minus3\p@}
+
+%% ------------------------------------------------------------
+%% 章节标题格式（华中杯样式）
+%% ------------------------------------------------------------
+\setcounter{secnumdepth}{3}
+\def\@seccntformat#1{\csname the#1\endcsname\ }
+\renewcommand\thesection{\chinese{section}、}
+\renewcommand\thesubsection{\arabic{section}.\arabic{subsection}}
+\renewcommand\thesubsubsection{\thesubsection.\arabic{subsubsection}}
+
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+    {-3.5ex \@plus -1ex \@minus -.2ex}%
+    {2.3ex \@plus.2ex}%
+    {\centering\normalfont\Large\bfseries}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+    {-3.25ex\@plus -1ex \@minus -.2ex}%
+    {1.5ex \@plus .2ex}%
+    {\normalfont\large\bfseries}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+    {-3.25ex\@plus -1ex \@minus -.2ex}%
+    {1.5ex \@plus .2ex}%
+    {\normalfont\normalsize\bfseries}}
+
+%% ------------------------------------------------------------
+%% 中文标题名称
+%% ------------------------------------------------------------
+\renewcommand\contentsname{目录}
+\renewcommand\listfigurename{插图清单}
+\renewcommand\listtablename{附表清单}
+\renewcommand\refname{参考文献}
+\renewcommand\indexname{索引}
+\renewcommand\figurename{图}
+\renewcommand\tablename{表}
+\renewcommand\appendixname{附录}
+\renewcommand\abstractname{摘要}
+
+%% ------------------------------------------------------------
+%% 摘要和关键词
+%% ------------------------------------------------------------
+\newcommand\mcm@tokens@keywords{}
+
+\renewenvironment{abstract}{%
+    \if@twocolumn
+        \section*{\abstractname}%
+    \else
+        \begin{center}%
+        {\zihao{4}\bfseries \abstractname\vspace{-.5em}\vspace{\z@}}%
+        \end{center}%
+        \quotation
+    \fi}
+    {\if@twocolumn\else\endquotation\newpage\null\fi}
+
+\renewenvironment{quotation}
+    {\list{}{\listparindent 2em%
+        \itemindent \listparindent
+        \rightmargin\z@
+        \leftmargin\z@
+        \parsep \z@ \@plus\p@}%
+    \item\relax}
+    {\endlist}
+
+\newcommand\keywords[1]{%
+    \renewcommand{\mcm@tokens@keywords}{#1}
+    \par
+    \vskip1ex
+    {\noindent\zihao{-4}\heiti 关键词：}~{\mcm@tokens@keywords}
+}
+
+%% ------------------------------------------------------------
+%% 团队信息命令
+%% ------------------------------------------------------------
+\newcommand*\mcm@tokens@tihao{}
+\newcommand*\mcm@tokens@baominghao{}
+\newcommand*\mcm@tokens@schoolname{}
+\newcommand*\mcm@tokens@membera{}
+\newcommand*\mcm@tokens@memberb{}
+\newcommand*\mcm@tokens@memberc{}
+\newcommand*\mcm@tokens@supervisor{}
+\newcommand*\mcm@tokens@yearinput{}
+\newcommand*\mcm@tokens@monthinput{}
+\newcommand*\mcm@tokens@dayinput{}
+
+\newcommand*\tihao[1]{\renewcommand{\mcm@tokens@tihao}{#1}}
+\newcommand*\baominghao[1]{\renewcommand{\mcm@tokens@baominghao}{#1}}
+\newcommand*\schoolname[1]{\renewcommand{\mcm@tokens@schoolname}{#1}}
+\newcommand*\membera[1]{\renewcommand{\mcm@tokens@membera}{#1}}
+\newcommand*\memberb[1]{\renewcommand{\mcm@tokens@memberb}{#1}}
+\newcommand*\memberc[1]{\renewcommand{\mcm@tokens@memberc}{#1}}
+\newcommand*\supervisor[1]{\renewcommand{\mcm@tokens@supervisor}{#1}}
+\newcommand*\yearinput[1]{\renewcommand{\mcm@tokens@yearinput}{#1}}
+\newcommand*\monthinput[1]{\renewcommand{\mcm@tokens@monthinput}{#1}}
+\newcommand*\dayinput[1]{\renewcommand{\mcm@tokens@dayinput}{#1}}
+
+%% ------------------------------------------------------------
+%% 承诺书常量
+%% ------------------------------------------------------------
+\newcommand*\mcm@commit@string@headname{赛区评阅编号（由赛区组委会填写）：}
+\newcommand*\mcm@commit@string@titlea{\the\year 华中杯数学建模竞赛}
+\newcommand*\mcm@commit@string@titleb{承\hspace{1em}诺\hspace{1em}书}
+\newcommand\mcm@commit@string@contents{\quotation
+我们仔细阅读了《华中杯数学建模竞赛章程》和《华中杯数学建模竞赛参赛规则》。
+
+我们完全清楚，在竞赛开始后参赛队员不能以任何方式与队外的任何人交流、讨论与赛题有关的问题。
+
+我们完全清楚，在竞赛中必须合法合规地使用文献资料和软件工具，不能有任何侵犯知识产权的行为。
+
+{\bfseries\song 我们以中国大学生名誉和诚信郑重承诺，严格遵守竞赛章程和参赛规则，以保证竞赛的公正、公平性。}
+\endquotation
+}
+\newcommand*\mcm@commit@string@problemnum{我们参赛选择的题号（从A/B/C/D/E中选择一项填写）：}
+\newcommand*\mcm@commit@string@signupnum{我们的报名参赛队号（12位数字全国统一编号）：}
+\newcommand*\mcm@commit@string@schoolname{参赛学校（完整的学校全称，不含院系名）：}
+\newcommand*\mcm@commit@string@membername{参赛队员 (打印并签名) ：}
+\newcommand*\mcm@commit@string@supervisorname{指导教师或指导教师组负责人  (打印并签名)：}
+\newcommand\mcm@commit@string@inform{\quotation
+\noindent{（\bfseries\kai 请勿改动此页内容和格式。此承诺书打印签名后作为纸质论文的封面，注意电子版论文中不得出现此页。以上内容请仔细核对，如填写错误，论文可能被取消评奖资格。）}
+\endquotation
+}
+\newcommand*\mcm@commit@string@date{日期:}
+\newcommand*\mcm@commit@string@year{年}
+\newcommand*\mcm@commit@string@month{月}
+\newcommand*\mcm@commit@string@day{日}
+
+%% ------------------------------------------------------------
+%% 编号专用页常量
+%% ------------------------------------------------------------
+\newcommand*\mcm@numberpage@string@headname{赛区评阅编号：}
+\newcommand*\mcm@numberpage@string@headnameb{（由赛区填写）}
+\newcommand*\mcm@numberpage@string@allcountrynum{全国评阅编号：}
+\newcommand*\mcm@numberpage@string@allcountrynumb{（全国组委会填写）}
+\newcommand*\mcm@numberpage@string@titlea{\the\year 华中杯数学建模竞赛}
+\newcommand*\mcm@numberpage@string@titleb{编\hspace{.5em}号\hspace{.5em}专\hspace{.5em}用\hspace{.5em}页}
+\newcommand*\mcm@numberpage@string@appraiselog{赛区评阅记录（可供赛区评阅时使用）：}
+\newcommand\mcm@numberpage@string@reviewer{\shortstack{评\\ 阅\\ 人}}
+\newcommand\mcm@numberpage@string@remarks{\shortstack{备\\ 注}}
+\newcommand*\mcm@numberpage@string@countrynum{送全国评阅统一编号:\\ \hspace*{2em}（赛区组委会填写）}
+\newcommand\mcm@numberpage@string@inform{\quotation
+\noindent（{\bfseries\kai 请勿改动此页内容和格式。此编号专用页仅供赛区和全国评阅使用，参赛队打印后装订到纸质论文的第二页上。注意电子版论文中不得出现此页。}）
+\endquotation
+}
+
+%% ------------------------------------------------------------
+%% 封面生成
+%% ------------------------------------------------------------
+\renewcommand{\maketitle}{\par
+    \begingroup
+        \newpage
+        \global\@topnum\z@
+        \@maketitle
+    \endgroup
+    \global\let\thanks\relax
+    \global\let\maketitle\relax
+    \global\let\@maketitle\relax
+    \global\let\@thanks\@empty
+    \global\let\@author\@empty
+    \global\let\@date\@empty
+    \global\let\@title\@empty
+    \global\let\title\relax
+    \global\let\author\relax
+    \global\let\date\relax
+    \global\let\and\relax
+}
+
+\def\@maketitle{%
+    \newpage
+    \if@mcm@preface
+    \null
+    \vskip2ex
+    \thispagestyle{empty}
+    {\zihao{4}\noindent\mcm@commit@string@headname\\[-8pt]
+    \noindent\rule[5pt]{\textwidth-1.34em}{.5pt}\par}
+    \begin{center}%
+        {\zihao{-3}\bfseries\heiti \mcm@commit@string@titlea \par}%
+        {\vskip1ex\zihao{3}\bfseries\songti \mcm@commit@string@titleb \par}
+    \end{center}
+    {\zihao{-4} \mcm@commit@string@contents \par}
+    {\vskip1ex\zihao{-4}
+    \renewcommand{\ULthickness}{0.4pt}\setlength{\ULdepth}{2pt}
+    \hspace*{2em}\mcm@commit@string@problemnum\uline{\mbox{\kern1em}\mcm@tokens@tihao\hfill}\makebox[0.66em]{}\par
+    \mcm@commit@string@signupnum\uline{\mbox{\kern1em}\mcm@tokens@baominghao\hfill}\makebox[0.66em]{}\par
+    \mcm@commit@string@schoolname\uline{\hfill\mcm@tokens@schoolname\hfill}\makebox[0.66em]{}\par
+    \newlength{\mcm@lenB}
+    \settowidth{\mcm@lenB}{\mcm@commit@string@membername\mbox{\hspace{1em}}1.}
+    \setlength{\mcm@lenB}{\textwidth-\mcm@lenB}
+    \mcm@commit@string@membername
+    \begin{minipage}[t]{\mcm@lenB}
+        1.\uline{\mbox{\kern1em}\mcm@tokens@membera\hfill} \makebox[0.46em]{}\par
+        2.\uline{\mbox{\kern1em}\mcm@tokens@memberb\hfill} \makebox[0.46em]{}\par
+        3.\uline{\mbox{\kern1em}\mcm@tokens@memberc\hfill} \makebox[0.46em]{}\par
+    \end{minipage}\par\vskip1ex
+    \mcm@commit@string@supervisorname\uline{\mbox{\hspace{1em}}\mcm@tokens@supervisor\hfill}\makebox[0.66em]{}\par
+    \hspace{0.1cm} （{\kaishu 指导教师签名意味着对参赛队的行为和论文的真实性负责}）
+    \vskip2ex
+    \newlength{\mcm@lenA}
+    \settowidth{\mcm@lenA}{请仔细核对，提交后将不再允许做任何修改。如}
+    \hspace*{\mcm@lenA}\mcm@commit@string@date\hspace{0.5em}\uline{\hfill\mbox{\kern1em}\mcm@tokens@yearinput\mbox{\kern1em}\hfill}%
+    \mcm@commit@string@year\uline{\hfill\mcm@tokens@monthinput\hfill}\mcm@commit@string@month%
+    \uline{\hfill\mcm@tokens@dayinput\hfill}\mcm@commit@string@day\makebox[1em]{}\par}
+    \vskip1ex
+    {\kaishu\bfseries\mcm@commit@string@inform\par}
+    \vfill
+    \null
+    \else
+    \fi
+    \makeothertitle
+}
+
+%% ------------------------------------------------------------
+%% 编号专用页
+%% ------------------------------------------------------------
+\def\makeothertitle{%
+    \if@mcm@preface
+    \par
+    \newpage
+    \null
+    \thispagestyle{empty}
+    {\zihao{4}\noindent\begin{tabularx}{\textwidth}{cXcX@{}}
+    \mcm@numberpage@string@headname & & \mcm@numberpage@string@allcountrynum&\\[-5pt]
+    \mcm@numberpage@string@headnameb & &\mcm@numberpage@string@allcountrynumb&\\
+    \cline{2-2}\cline{4-4}
+    \end{tabularx}
+    
+    \vspace*{1.2em}
+    
+    \noindent\rule{\textwidth}{1pt}\par}
+    \begin{center}
+    {\zihao{4}\bfseries\heiti \mcm@numberpage@string@titlea\par}
+    {\vskip1ex\zihao{3}\songti \bfseries\mcm@numberpage@string@titleb\par}
+    \end{center}\par
+    {%
+    \zihao{4}
+    \vskip3em
+    \hspace*{2em}\mcm@numberpage@string@appraiselog
+    \par
+    \newlength{\mcm@lenC}
+    \setlength{\mcm@lenC}{\textwidth-8.72em}
+    \setlength{\mcm@lenC}{\mcm@lenC/6}
+    \newlength{\mcm@lenD}
+    \settoheight{\mcm@lenD}{\mcm@numberpage@string@reviewer}
+    \setlength{\mcm@lenD}{\mcm@lenD+2em}
+    \newlength{\mcm@lenF}
+    \settoheight{\mcm@lenF}{\mcm@numberpage@string@remarks}
+    \setlength{\mcm@lenF}{\mcm@lenF+2em}
+    \newcolumntype{P}{@{}p{\mcm@lenC}@{}}
+    \hspace*{1.5em}\begin{tabular}{|!{\hspace{4pt}}c!{\hspace{4pt}}|*{6}{P|}}
+        \hline
+        \rule{0pt}{\mcm@lenD}\raisebox{0.6em}[0pt][0pt]{\mcm@numberpage@string@reviewer} & & & & & &  \\\cline{1-7}
+        \rule{0pt}{\mcm@lenF}\raisebox{0.6em}[0pt][0pt]{\mcm@numberpage@string@remarks} & & & & & &  \\
+        \hline
+    \end{tabular}\par
+    \vskip5em
+    \hspace*{2em}\mcm@numberpage@string@countrynum}
+    
+    \vfill
+    {\zihao{-4}\kaishu\bfseries\mcm@numberpage@string@inform\par}
+    
+    \null
+    \newpage
+    \null
+    \setcounter{page}{1}
+    {\centering \zihao{3}\bfseries \@title\par}
+    \vskip1ex
+    \else
+    \setcounter{page}{1}
+    {\centering \zihao{3}\bfseries \@title\par}
+    \vskip1ex
+    \fi
+}
+
+%% ------------------------------------------------------------
+%% 参考文献环境重定义
+%% ------------------------------------------------------------
+\renewenvironment{thebibliography}[1]
+    {\section*{\refname}%
+        \@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}%
+        \list{\@biblabel{\@arabic\c@enumiv}}%
+            {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+        \sloppy
+        \clubpenalty4000
+        \@clubpenalty \clubpenalty
+        \widowpenalty4000%
+        \sfcode`\.\@m}
+    {\def\@noitemerr
+        {\@latex@warning{Empty `thebibliography' environment}}%
+        \endlist}
+
+%% ------------------------------------------------------------
+%% 上标引用
+%% ------------------------------------------------------------
+\newcommand{\upcite}[1]{$^{\mbox{\scriptsize \cite{#1}}}$}
+\newcommand{\supercite}[1]{\textsuperscript{\textsuperscript{\cite{#1}}}}
+
+%% ------------------------------------------------------------
+%% 文档类结束
+%% ------------------------------------------------------------
+\endinput
